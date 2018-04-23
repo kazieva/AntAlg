@@ -2,9 +2,7 @@ package by.bsu.mmf.kazieva.graph;
 
 import by.bsu.mmf.kazieva.way.Pair;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class Graph {
@@ -174,29 +172,23 @@ public class Graph {
 
         createVerticesAndEdges();
     }
-/*
+
     public boolean createGraphFromFile(String fileName) {      // create graph from file
-        String inputFileName = "resouses/" + fileName + ".txt";
+        String inputFileName = "src/resourses/" + fileName + ".txt";
         deleteGraph();
 
-        int[] massOfDigits = new int[100];
+        int[] massOfDigits = new int[10000];
         int numberOfDigits = 0;
+
+        File file = new File(inputFileName);
+
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFileName));
-            String line;
-                while ((line = reader.readLine()) != null) {
-                    if (line.length() != 0) {
-                        massOfDigits[numberOfDigits++] = line.nextInt();
-                    }
-                }
-            reader.close();
-        } catch (IOException e) {
+            Scanner input = new Scanner(file);
+            while (input.hasNextInt()) {
+                massOfDigits[numberOfDigits++] = input.nextInt();
+            }
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-
-
-        while (input.hasNextInt()) {
-            massOfDigits[numberOfDigits++] = input.nextInt();
         }
 
         if (Math.sqrt(numberOfDigits) % 1 == 0) {
@@ -237,7 +229,7 @@ public class Graph {
 
         return false;  // graph is not created
     }
-*/
+
     private boolean isNullRow(int[][] mm, int index) {
         for (int i = 0; i < 10; ++i)
             if (mm[index][i] != 0)

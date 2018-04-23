@@ -302,9 +302,11 @@ public class AntAlgorithm {
 
             currentIndex = nodesInPath.get(nodesInPath.size() - 1);
         }
-
+        System.out.println("wayWeight = "+ wayWeight);
         nodesInPath.add(wayWeight);
-        for (int i=0;i<nodesInPath.size(); i++)
+
+        System.out.println("way");
+        for (int i=0;i<nodesInPath.size()-1; i++)
             System.out.println(nodesInPath.get(i));
         return nodesInPath; // path of ant
     }
