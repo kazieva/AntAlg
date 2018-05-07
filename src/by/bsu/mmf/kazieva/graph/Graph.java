@@ -6,23 +6,17 @@ import java.io.*;
 import java.util.*;
 
 public class Graph {
-
- /*   public static Character[] alphabet = {'A',       // алфавит для списков вершин
-            'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
-*/
     public int numberOfVertices;         // Number of graph nodes
     public int[][] adjacencyMatrix;      // Adjacency matrix with weights
     public boolean[][] linksMatrix;      // Adjacency matrix with links only. We'll use Warshall algorithm to it.
 
     public List<Edge> edges;             // Graph's edges
-    public List<Vertex> vertices;        // Graph's vertices
 
     public Graph() {                     // Constructor
         numberOfVertices = 0;
         adjacencyMatrix = null;
         linksMatrix = null;
         edges = null;
-        vertices = null;
     }
 
     public Graph(Graph g) {              // Copy constructor
@@ -37,7 +31,6 @@ public class Graph {
             }
 
         if (g.edges != null) edges = new ArrayList<>(g.edges);
-        if (g.vertices != null) vertices = new ArrayList<>(g.vertices);
     }
 
     public boolean isNull() {
@@ -58,7 +51,6 @@ public class Graph {
         adjacencyMatrix = null;
         linksMatrix = null;
         edges = null;
-        vertices = null;
     }
 
     private void createMatrix(int n) {     // create graph
@@ -67,40 +59,28 @@ public class Graph {
         linksMatrix = new boolean[n][n];
     }
 
-    private void createVerticesAndEdges() {
-        // create vertices
-        vertices = new ArrayList<>(numberOfVertices);
+    private void outputGraphInFile(){
+        try(FileWriter writer = new FileWriter("notes.txt", false))
+        {
+            for (int i = 0; i < numberOfVertices; ++i){
+                for (int j =0; j < numberOfVertices; ++j){
+                    String text =  "";
+                    text+=(adjacencyMatrix[i][j]+" ");
+                    writer.write(text);
+                }
+            writer.append('\n');
+            }
+            writer.flush();
 
-        int centerOfPanelX = 342;
-        int centerOfPanelY = 330;
-        int distanceToCenterOfVertex = 290;
-
-        // ���������� �������
-        int vertexX = centerOfPanelX;
-        int vertexY = centerOfPanelY - distanceToCenterOfVertex;
-
-        // �������������� ����������
-        double radNextX = vertexX - centerOfPanelX;
-        double radNextY = vertexY - centerOfPanelY;
-        double polarX, polarY;
-        double tempX, tempY;
-
-        for (int i = 0; i < numberOfVertices; ++i) {
-            vertices.add(new Vertex(vertexX - 25, vertexY - 25,  i));
-
-            polarX = 1 * Math.cos(Math.acos(-1.0) * 2 / numberOfVertices);
-            polarY = 1 * Math.sin(Math.acos(-1.0) * 2 / numberOfVertices);
-
-            tempX = radNextX * polarX - radNextY * polarY;
-            tempY = radNextX * polarY + radNextY * polarX;
-
-            radNextX = tempX;
-            radNextY = tempY;
-
-            vertexX = (int) (centerOfPanelX + radNextX);
-            vertexY = (int) (centerOfPanelY + radNextY);
         }
+        catch(IOException e){
 
+            System.out.println(e.getMessage());
+        }
+    }
+
+
+    private void createVerticesAndEdges() {
         // create edges
         edges = new ArrayList<>();
         for (int i = 0; i < numberOfVertices; ++i)
@@ -171,13 +151,14 @@ public class Graph {
         makeWarshallAlgorithm();                        // WarshallAlgorithm
 
         createVerticesAndEdges();
+        outputGraphInFile();
     }
 
     public boolean createGraphFromFile(String fileName) {      // create graph from file
         String inputFileName = "src/resourses/" + fileName + ".txt";
         deleteGraph();
 
-        int[] massOfDigits = new int[10000];
+        int[] massOfDigits = new int[10000000];
         int numberOfDigits = 0;
 
         File file = new File(inputFileName);
@@ -234,11 +215,6 @@ public class Graph {
         for (int i = 0; i < 10; ++i)
             if (mm[index][i] != 0)
                 return false;
-
-        for (int i = 0; i < vertices.size(); i++)
-            if (vertices.get(i).letter == index)
-                return false;
-
         return true;
     }
 
@@ -247,64 +223,6 @@ public class Graph {
             i.pheromone = 0;
     }
 
-    public void createMatrixFromEdgesAndVertices() {
-        int[][] adjacencyMatrixTmp = new int[10][10];
-
-        for (int i = 0; i < 10; ++i)
-            for (int j = 0; j < 10; ++j)
-                adjacencyMatrixTmp[i][j] = 0;
-
-        for (Edge i : edges) {
-            adjacencyMatrixTmp[i.firstNode][i.secondNode] = i.weight;
-            adjacencyMatrixTmp[i.secondNode][i.firstNode] = i.weight;
-        }
-
-        adjacencyMatrix = new int[numberOfVertices][numberOfVertices];
-        linksMatrix = new boolean[numberOfVertices][numberOfVertices];
-
-        for (int i = 0; i < numberOfVertices; ++i)
-            for (int j = 0; j < numberOfVertices; ++j) {
-                adjacencyMatrix[i][j] = 0;
-                linksMatrix[i][j] = false;
-            }
-
-        int[] mass = new int[numberOfVertices];
-
-        int ind = 0;
-
-        for (int i = 0; i < 10; ++i)
-            if (!isNullRow(adjacencyMatrixTmp, i))
-                mass[ind++] = i;
-
-        int indexI = 0, indexJ = 0;
-        for (int i = 0; i < 10; i++) {
-            if (isNullRow(adjacencyMatrixTmp, i))
-                continue;
-
-            for (int j : mass) {
-                adjacencyMatrix[indexI][indexJ] = adjacencyMatrixTmp[i][j];
-                indexJ++;
-            }
-            indexJ = 0;
-            indexI++;
-        }
-
-        for (int i = 0; i < numberOfVertices; ++i)
-            for (int j = 0; j < numberOfVertices; ++j) {
-                if (adjacencyMatrix[i][j] != 0)
-                    linksMatrix[i][j] = true;
-            }
-
-        makeWarshallAlgorithm();
-
-        // create edges
-        edges = new ArrayList<>();
-        for (int i = 0; i < numberOfVertices; ++i)
-            for (int j = i; j < numberOfVertices; ++j)
-                if (adjacencyMatrix[i][j] != 0) {
-                    edges.add(new Edge(adjacencyMatrix[i][j], i, j));
-                }
-    }
     public void printGraph(){
 
         System.out.println("adjacencyMatrix:" + "\n");
